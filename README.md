@@ -91,3 +91,28 @@ For diagnostics, launch with `SYNCDELAY_DEBUG=1` to log buffer underruns/overrun
 ## License
 
 [MIT](LICENSE)
+
+---
+
+<p align="center">
+  <img src="https://github.com/leviholliday.png?size=200" width="100" alt="Levi Holliday">
+</p>
+
+<h3 align="center">Levi Holliday</h3>
+<p align="center"><em>Student · Ohio</em></p>
+
+<p align="center">
+  <a href="https://github.com/leviholliday"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
+  <a href="https://linkedin.com/in/leviholliday"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
+  <a href="https://x.com/leviAholliday"><img src="https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white" alt="X"></a>
+  <a href="https://gravatar.com/leviholliday7"><img src="https://img.shields.io/badge/Gravatar-1E40AF?style=for-the-badge&logo=gravatar&logoColor=white" alt="Gravatar"></a>
+  <br>
+  <a href="https://open.spotify.com/user/31lc4dgi2o42hxqe5x2s3rx46boi"><img src="https://img.shields.io/badge/Spotify-1DB954?style=for-the-badge&logo=spotify&logoColor=white" alt="Spotify"></a>
+  <a href="https://youtube.com/channel/UC3ZkVy3jMPHZpJiCwav-K9w"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube"></a>
+  <a href="https://pinterest.com/leviholliday7"><img src="https://img.shields.io/badge/Pinterest-BD081C?style=for-the-badge&logo=pinterest&logoColor=white" alt="Pinterest"></a>
+</p>
+
+<p align="center">
+  <strong>Built this because my MacBook and Bluetooth speaker refused to play in time. Figured I'm not the only one.</strong><br>
+  Questions, bugs, or ideas for a feature — <a href="https://github.com/leviholliday/sync-delay/issues">open an issue</a> or reach out any time.
+</p>
