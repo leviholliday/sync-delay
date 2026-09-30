@@ -19,6 +19,7 @@ Sync Delay fixes that by delaying the *faster* speakers until they line up with 
 - **Per-speaker volume** — set the hardware volume of each device inside your aggregate output, right from the app.
 - **6-band equalizer with presets** — Flat, Bass Boost, Vocal, Rock, Electronic, Acoustic, Podcast, Late Night, or your own curve.
 - **Auto EQ** — listens to the song as it plays and gradually adjusts the bands so each track lands on the sound of the preset you chose.
+- **Built-in updates**: new releases install from inside the app.
 - **Level meters**, hot-plug device detection, start-on-launch, and all settings remembered.
 
 ## How it works
@@ -62,6 +63,18 @@ Needs the Xcode command-line tools (`xcode-select --install`).
 ```
 
 This compiles `sync-delay.swift` into `Sync Delay.app`. The whole app is a single Swift file using SwiftUI, Core Audio and AudioToolbox; there are no dependencies.
+
+## Updates
+
+Sync Delay checks this repo's latest release each time it launches. When a newer version exists, an **Install & Relaunch** button appears in the window; it downloads the release, replaces the app in place and reopens it. You can also check any time from the app menu: **Sync Delay → Check for Updates…**
+
+### Publishing a new version (maintainers)
+
+```bash
+./release.sh 1.4 "Short description of what changed"
+```
+
+The script bumps the version in `SyncDelay-Info.plist`, builds and zips the app, commits, tags `v1.4`, pushes, creates the GitHub release with `Sync-Delay.zip` attached, and updates your local `/Applications` copy. Every installed copy picks it up on its next launch. Omit the notes to have GitHub generate them from commits.
 
 ## Troubleshooting
 

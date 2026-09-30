@@ -422,6 +422,92 @@ private func setHardwareVolume(_ id: AudioDeviceID, _ value: Double) {
     }
 }
 
+// MARK: Updates from GitHub Releases
+
+@MainActor
+private final class Updater: ObservableObject {
+    static let shared = Updater()
+    static let repo = "leviholliday/sync-delay"
+
+    @Published var availableVersion: String?
+    @Published var isInstalling = false
+    @Published var message: String?
+    private var downloadURL: URL?
+
+    var currentVersion: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0" }
+
+    private static func isNewer(_ a: String, than b: String) -> Bool {
+        let x = a.split(separator: ".").map { Int($0) ?? 0 }, y = b.split(separator: ".").map { Int($0) ?? 0 }
+        for i in 0..<max(x.count, y.count) {
+            let l = i < x.count ? x[i] : 0, r = i < y.count ? y[i] : 0
+            if l != r { return l > r }
+        }
+        return false
+    }
+
+    func check(userInitiated: Bool = false) {
+        Task {
+            do {
+                var request = URLRequest(url: URL(string: "https://api.github.com/repos/\(Self.repo)/releases/latest")!)
+                request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+                let (data, _) = try await URLSession.shared.data(for: request)
+                guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let tag = json["tag_name"] as? String,
+                      let assets = json["assets"] as? [[String: Any]],
+                      let zip = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".zip") == true }),
+                      let urlString = zip["browser_download_url"] as? String else { throw URLError(.badServerResponse) }
+                let version = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
+                if Self.isNewer(version, than: currentVersion) {
+                    availableVersion = version; downloadURL = URL(string: urlString); message = nil
+                    if ProcessInfo.processInfo.environment["SYNCDELAY_TEST_UPDATE"] != nil { install() }
+                } else {
+                    availableVersion = nil
+                    if userInitiated { message = "Sync Delay \(currentVersion) is the latest version." }
+                }
+            } catch {
+                if userInitiated { message = "Couldn't check for updates: \(error.localizedDescription)" }
+            }
+        }
+    }
+
+    /// Downloads the release zip, then a helper shell swaps the bundle in place once this process exits and relaunches it.
+    func install() {
+        guard let downloadURL, !isInstalling else { return }
+        isInstalling = true; message = "Downloading update…"
+        Task {
+            do {
+                let (file, _) = try await URLSession.shared.download(from: downloadURL)
+                let work = FileManager.default.temporaryDirectory.appendingPathComponent("SyncDelayUpdate-\(UUID().uuidString)")
+                try FileManager.default.createDirectory(at: work, withIntermediateDirectories: true)
+                let zip = work.appendingPathComponent("update.zip")
+                try FileManager.default.moveItem(at: file, to: zip)
+                let unzip = Process()
+                unzip.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
+                unzip.arguments = ["-x", "-k", zip.path, work.path]
+                try unzip.run(); unzip.waitUntilExit()
+                guard unzip.terminationStatus == 0,
+                      let newApp = try FileManager.default.contentsOfDirectory(at: work, includingPropertiesForKeys: nil).first(where: { $0.pathExtension == "app" })
+                else { throw NSError(domain: "SyncDelay", code: 1, userInfo: [NSLocalizedDescriptionKey: "The update archive is invalid."]) }
+
+                let destination = Bundle.main.bundleURL.path
+                let script = """
+                while kill -0 \(ProcessInfo.processInfo.processIdentifier) 2>/dev/null; do sleep 0.2; done
+                rm -rf "$DEST" && mv "$NEW" "$DEST" && xattr -dr com.apple.quarantine "$DEST"
+                open "$DEST"
+                """
+                let swap = Process()
+                swap.executableURL = URL(fileURLWithPath: "/bin/sh")
+                swap.arguments = ["-c", script]
+                swap.environment = ["DEST": destination, "NEW": newApp.path, "PATH": "/usr/bin:/bin:/usr/sbin"]
+                try swap.run()
+                NSApplication.shared.terminate(nil)
+            } catch {
+                isInstalling = false; message = "Update failed: \(error.localizedDescription)"
+            }
+        }
+    }
+}
+
 private struct DeviceChoice: Identifiable {
     let id: String
     let name: String
@@ -696,6 +782,7 @@ private struct ClearInitialFocus: NSViewRepresentable {
 
 private struct ContentView: View {
     @StateObject private var model = SyncDelayModel()
+    @ObservedObject private var updater = Updater.shared
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -748,7 +835,7 @@ private struct ContentView: View {
                     .keyboardShortcut("m", modifiers: [.command, .shift])
                     .help("Mute (⇧⌘M)")
                     Slider(value: $model.volume, in: 0...1)
-                        .onChange(of: model.volume) { _ in model.muted = false }
+                        .onReceive(model.$volume.dropFirst()) { _ in model.muted = false }
                     Text("\(Int((model.volume * 100).rounded()))%")
                         .monospacedDigit().foregroundStyle(.secondary).frame(width: 40, alignment: .trailing)
                 }
@@ -784,6 +871,18 @@ private struct ContentView: View {
                     } else {
                         Button("Start") { model.start() }.keyboardShortcut(.return, modifiers: .command).buttonStyle(.borderedProminent)
                     }
+                }
+                if let version = updater.availableVersion {
+                    HStack {
+                        Label("Sync Delay \(version) is available", systemImage: "arrow.down.circle")
+                            .font(.callout)
+                        Spacer()
+                        Button(updater.isInstalling ? "Installing…" : "Install & Relaunch") { updater.install() }
+                            .disabled(updater.isInstalling)
+                    }
+                }
+                if let message = updater.message {
+                    Text(message).font(.caption).foregroundStyle(.secondary)
                 }
                 HStack {
                     Toggle("Start on launch", isOn: $model.autoStart)
@@ -836,9 +935,10 @@ private struct ContentView: View {
         .formStyle(.grouped)
         .frame(width: 360)
         }
-        .frame(height: 600 + (model.outputVolumes.isEmpty ? 0 : 70 + CGFloat(model.outputVolumes.count) * 34))
+        .frame(height: 600 + (model.outputVolumes.isEmpty ? 0 : 70 + CGFloat(model.outputVolumes.count) * 34) + (updater.availableVersion == nil ? 0 : 44) + (updater.message == nil ? 0 : 24))
         .background(ClearInitialFocus())
         .onDisappear { model.stop() }
+        .task { updater.check() }
     }
 }
 
@@ -856,6 +956,11 @@ private struct SyncDelayApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     var body: some Scene {
         WindowGroup { ContentView() }
+            .commands {
+                CommandGroup(after: .appInfo) {
+                    Button("Check for Updates…") { Updater.shared.check(userInitiated: true) }
+                }
+            }
             .windowResizability(.contentSize)
     }
 }
