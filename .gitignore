@@ -1,0 +1,14 @@
+# Build output
+Sync Delay.app/
+build/
+*.zip
+SyncDelay
+sync-delay
+
+# Local design/QA scratch
+app-*.png
+applications-installed.png
+design-comparison.png
+implementation-screen.png
+design-qa.md
+.DS_Store
