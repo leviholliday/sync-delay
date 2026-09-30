@@ -2,6 +2,8 @@
 
 <h1 align="center">Sync Delay</h1>
 
+<p align="center"><a href="https://leviholliday.github.io/sync-delay/"><strong>Website</strong></a> · <a href="https://github.com/leviholliday/sync-delay/releases/latest">Download</a></p>
+
 <p align="center">Play your Mac's audio through several speakers at once — and keep them in time.</p>
 
 <p align="center"><img src="docs/screenshot.png" width="700" alt="Sync Delay window"></p>

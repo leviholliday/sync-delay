@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sync Delay — keep every Mac speaker in time</title>
+<meta name="description" content="A free macOS app that plays your audio through your MacBook speakers and a Bluetooth speaker at the same time, perfectly in sync. With volume, per-speaker levels and Auto EQ.">
+<meta property="og:title" content="Sync Delay">
+<meta property="og:description" content="Play your Mac's audio through several speakers at once — and keep them in time.">
+<meta property="og:image" content="https://leviholliday.github.io/sync-delay/screenshot.png">
+<link rel="icon" href="icon.png">
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1d1d1f; --muted: #6e6e73; --line: #e5e5ea;
+    --card: #f5f5f7; --accent: #0a66d8; --accent-fg: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #000; --fg: #f5f5f7; --muted: #a1a1a6; --line: #2c2c2e; --card: #1c1c1e; --accent: #2997ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 17px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+
+  nav { border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; gap: 10px; height: 52px; }
+  nav img { width: 26px; height: 26px; }
+  nav strong { font-size: 16px; }
+  nav .links { margin-left: auto; display: flex; gap: 22px; font-size: 14px; }
+  nav .links a { color: var(--muted); }
+
+  header { text-align: center; padding: 72px 0 40px; }
+  header img.icon { width: 112px; height: 112px; }
+  h1 { font-size: clamp(36px, 6vw, 56px); line-height: 1.08; letter-spacing: -0.02em; margin: 18px 0 14px; }
+  .lede { font-size: 21px; color: var(--muted); max-width: 640px; margin: 0 auto 30px; }
+  .btn { display: inline-block; background: var(--accent); color: var(--accent-fg); padding: 12px 24px;
+    border-radius: 980px; font-weight: 600; font-size: 17px; }
+  .btn:hover { text-decoration: none; filter: brightness(1.08); }
+  .btn.secondary { background: transparent; color: var(--accent); }
+  .fine { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  .shot { display: block; margin: 20px auto 0; width: 100%; max-width: 760px; border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.18); }
+
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 34px; letter-spacing: -0.015em; margin: 0 0 10px; text-align: center; }
+  .sub { text-align: center; color: var(--muted); max-width: 620px; margin: 0 auto 40px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border-radius: 16px; padding: 22px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  pre { background: var(--card); border-radius: 12px; padding: 18px; overflow-x: auto; font-size: 14px; line-height: 1.5; }
+  ol.steps { max-width: 680px; margin: 0 auto; padding-left: 22px; }
+  ol.steps li { margin-bottom: 14px; }
+  code { font: 14px ui-monospace, "SF Mono", Menlo, monospace; background: var(--card); padding: 1px 6px; border-radius: 5px; }
+  pre code { background: none; padding: 0; }
+  .note { max-width: 680px; margin: 24px auto 0; background: var(--card); border-radius: 12px; padding: 14px 18px; font-size: 15px; color: var(--muted); }
+
+  footer { border-top: 1px solid var(--line); padding: 56px 0 64px; text-align: center; }
+  footer img.me { width: 88px; height: 88px; border-radius: 14px; object-fit: cover; }
+  footer h3 { margin: 14px 0 2px; font-size: 20px; }
+  footer .where { color: var(--muted); font-style: italic; margin: 0 0 16px; }
+  .social { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 22px; }
+  .social a { font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 8px; background: var(--card); color: var(--fg); }
+  .social a:hover { text-decoration: none; background: var(--line); }
+  footer .blurb { max-width: 520px; margin: 0 auto; color: var(--muted); font-size: 15px; }
+  footer .blurb strong { color: var(--fg); }
+  footer .legal { margin-top: 28px; font-size: 12px; color: var(--muted); }
+
+  @media (max-width: 600px) { nav .links a.hide-sm { display: none; } header { padding-top: 48px; } section { padding: 52px 0; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <img src="icon.png" alt=""><strong>Sync Delay</strong>
+    <div class="links">
+      <a href="#features" class="hide-sm">Features</a>
+      <a href="#setup">Setup</a>
+      <a href="https://github.com/leviholliday/sync-delay">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<header class="wrap">
+  <img class="icon" src="icon.png" alt="Sync Delay icon">
+  <h1>Every speaker.<br>Right on time.</h1>
+  <p class="lede">Play your Mac's audio through your MacBook speakers and a Bluetooth speaker at once — without the echo.</p>
+  <a class="btn" id="download" href="https://github.com/leviholliday/sync-delay/releases/latest/download/Sync-Delay.zip">Download for Mac</a>
+  <a class="btn secondary" href="#setup">How to set it up ›</a>
+  <p class="fine"><span id="version">Free and open source</span> · macOS 13 or later</p>
+  <img class="shot" src="screenshot.png" alt="The Sync Delay window showing devices, delay, volume and equalizer controls">
+</header>
+
+<section id="why">
+  <div class="wrap">
+    <h2>Why Bluetooth sounds like an echo</h2>
+    <p class="sub">macOS can play to several outputs at once, but a Bluetooth speaker usually arrives 150–300 ms behind your built-in speakers. Sync Delay holds back the faster speakers by exactly that much, so everything lands together.</p>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Everything you need, nothing you don't</h2>
+    <p class="sub">A small native app that sits quietly in the background.</p>
+    <div class="grid">
+      <div class="card"><h3>Millisecond tuning</h3><p>Slide, type or nudge the delay by 1 ms while music plays, and tune by ear until drum hits line up.</p></div>
+      <div class="card"><h3>Pick which speakers wait</h3><p>Choose the delayed channels with a click. Changes apply instantly, with no restart.</p></div>
+      <div class="card"><h3>Volume for each speaker</h3><p>A master volume and mute, plus a hardware level for every device, so you can balance a loud speaker against a quiet laptop.</p></div>
+      <div class="card"><h3>Equalizer with presets</h3><p>Six bands and eight presets, from Bass Boost to Podcast, or dial in your own curve.</p></div>
+      <div class="card"><h3>Auto EQ</h3><p>Listens to each song as it plays and gently steers it toward the preset you picked. Changes glide in, with no jumps.</p></div>
+      <div class="card"><h3>Updates itself</h3><p>New versions show up in the app with one-click install. Settings are always remembered.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="setup">
+  <div class="wrap">
+    <h2>Set up in five minutes</h2>
+    <p class="sub">Sync Delay uses the free BlackHole driver to receive your Mac's audio.</p>
+    <ol class="steps">
+      <li><strong>Install BlackHole 2ch</strong> from <a href="https://existential.audio/blackhole/">existential.audio</a>, or with Homebrew:
+        <pre><code>brew install blackhole-2ch</code></pre></li>
+      <li><strong>Make an Aggregate Device.</strong> Open <em>Audio MIDI Setup</em>, click <strong>+ → Create Aggregate Device</strong>, and tick your MacBook speakers and your Bluetooth speaker. Turn on <em>Drift Correction</em> for the Bluetooth speaker.</li>
+      <li><strong>Set your Mac's output to BlackHole 2ch</strong> in System Settings → Sound.</li>
+      <li><strong>Open Sync Delay</strong>, choose BlackHole as the input and your aggregate as the output, and press <strong>Start</strong>. Allow microphone access when asked, because macOS needs it to read from BlackHole.</li>
+      <li><strong>Tune the delay</strong> until everything sounds like one speaker. ⌘← and ⌘→ nudge it by 1 ms.</li>
+    </ol>
+    <p class="note"><strong>First launch:</strong> Sync Delay isn't notarized by Apple yet, so right-click the app, choose <strong>Open</strong>, then <strong>Open</strong> again. You only need to do this once.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <img class="me" src="https://github.com/leviholliday.png?size=200" alt="Levi Holliday">
+    <h3>Levi Holliday</h3>
+    <p class="where">Student · Ohio</p>
+    <div class="social">
+      <a href="https://github.com/leviholliday">GitHub</a>
+      <a href="https://linkedin.com/in/leviholliday">LinkedIn</a>
+      <a href="https://x.com/leviAholliday">X</a>
+      <a href="https://gravatar.com/leviholliday7">Gravatar</a>
+      <a href="https://open.spotify.com/user/31lc4dgi2o42hxqe5x2s3rx46boi">Spotify</a>
+      <a href="https://youtube.com/channel/UC3ZkVy3jMPHZpJiCwav-K9w">YouTube</a>
+      <a href="https://pinterest.com/leviholliday7">Pinterest</a>
+    </div>
+    <p class="blurb"><strong>Built this because my MacBook and Bluetooth speaker refused to play in time. Figured I'm not the only one.</strong><br>
+      Questions, bugs, or ideas? <a href="https://github.com/leviholliday/sync-delay/issues">Open an issue</a> or reach out any time.</p>
+    <p class="legal">MIT licensed · Not affiliated with Apple or Existential Audio</p>
+  </div>
+</footer>
+
+<script>
+  // Show the current release number next to the download button.
+  fetch("https://api.github.com/repos/leviholliday/sync-delay/releases/latest")
+    .then(r => r.ok ? r.json() : null)
+    .then(r => { if (r && r.tag_name) document.getElementById("version").textContent = "Version " + r.tag_name.replace(/^v/, "") + " · Free and open source"; })
+    .catch(() => {});
+</script>
+</body>
+</html>
